@@ -179,7 +179,7 @@ const Index = () => {
             <div>
               <h4 className="font-medium text-foreground mb-3">Contact</h4>
               <div className="space-y-1 text-sm text-muted-foreground">
-                <p>info@fernandfern.co.za</p>
+                <p>fenandferncreations@gmail.com</p>
                 <p>+27 82 123 4567</p>
                 <p>Cape Town, South Africa</p>
               </div>
