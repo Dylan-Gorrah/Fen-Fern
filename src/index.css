@@ -1,0 +1,279 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fern & Fern Creations - Minimal Glass Design System */
+
+@layer base {
+  :root {
+    /* Fern & Fern Creations Color Palette */
+    --background: 30 33% 97%; /* Creamy White #F8F5F2 */
+    --foreground: 156 16% 35%; /* Forest Ink #5A7267 */
+
+    --card: 30 33% 97%; /* Creamy White */
+    --card-foreground: 156 16% 35%; /* Forest Ink */
+
+    --popover: 30 33% 97%;
+    --popover-foreground: 156 16% 35%;
+
+    --primary: 149 30% 67%; /* Dusty Sage #A7C4B5 */
+    --primary-foreground: 156 16% 35%; /* Forest Ink */
+
+    --secondary: 140 29% 91%; /* Mint Frost #E3F0E8 */
+    --secondary-foreground: 156 16% 35%;
+
+    --muted: 140 29% 91%; /* Mint Frost */
+    --muted-foreground: 156 16% 55%;
+
+    --accent: 320 100% 93%; /* Blush Pink #FFD6E8 */
+    --accent-foreground: 156 16% 35%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 30 33% 97%;
+
+    --border: 149 30% 85%; /* Lighter Dusty Sage */
+    --input: 149 30% 85%;
+    --ring: 149 30% 67%;
+
+    --radius: 0.75rem;
+
+    --gradient-floral: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--accent)));
+    --gradient-sage: linear-gradient(180deg, hsl(var(--primary)), hsl(var(--secondary)));
+    --shadow-soft: 0 4px 20px -8px hsl(var(--primary) / 0.2);
+    --shadow-floral: 0 8px 32px -12px hsl(var(--accent) / 0.3);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+  
+  body.modal-open {
+    overflow: hidden;
+  }
+}
+
+@layer utilities {
+  /* Subtle Fade In Animation */
+  .animate-fade-in {
+    animation: fadeIn 0.8s ease-out forwards;
+    opacity: 0;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Glassmorphic Modal Overlay - Apple Inspired */
+  .custom-letter-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    overflow-y: auto;
+    
+    /* Apple-style dark backdrop with heavy blur */
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    
+    animation: overlayFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  /* Ensure dropdowns appear above modal content */
+  .custom-letter-modal-overlay [data-radix-popper-content-wrapper] {
+    z-index: 10000 !important;
+  }
+  
+  @keyframes overlayFadeIn {
+    from {
+      opacity: 0;
+      backdrop-filter: blur(0px) saturate(100%);
+      -webkit-backdrop-filter: blur(0px) saturate(100%);
+    }
+    to {
+      opacity: 1;
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+    }
+  }
+  
+  /* Modal Content - Gentle Slide Up */
+  .custom-letter-modal-overlay > div {
+    animation: modalSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  @keyframes modalSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Form Field Stagger Animation */
+  .form-field-stagger {
+    animation: fieldSlideIn 0.5s ease-out forwards;
+    opacity: 0;
+  }
+  
+  @keyframes fieldSlideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  /* Apple-Style Premium Glass Inputs */
+  .glass-input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  .glass-input:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+  
+  .glass-input:focus {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.4);
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Subtle Hover Lift */
+  .hover-lift {
+    transition: transform 0.2s ease-out;
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Pulse Animation for Success */
+  @keyframes gentlePulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.05);
+      opacity: 0.9;
+    }
+  }
+  
+  .animate-gentle-pulse {
+    animation: gentlePulse 2s ease-in-out infinite;
+  }
+  
+  /* Smooth Scrollbar */
+  .custom-letter-modal-overlay ::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .custom-letter-modal-overlay ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+  }
+  
+  .custom-letter-modal-overlay ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+  }
+  
+  .custom-letter-modal-overlay ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
+  }
+  
+  /* Text Shimmer Effect */
+  @keyframes textShimmer {
+    0% {
+      background-position: -200% center;
+    }
+    100% {
+      background-position: 200% center;
+    }
+  }
+  
+  .text-shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.7) 0%,
+      rgba(255, 255, 255, 1) 50%,
+      rgba(255, 255, 255, 0.7) 100%
+    );
+    background-size: 200% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: textShimmer 3s linear infinite;
+  }
+}
