@@ -26,7 +26,7 @@ const products = [
     price: 75,
     priceRange: "from R75",
     image: productLetter,
-    description: "Personalized pressed flower letters with your special message beautifully preserved"
+    description: "Personalized letter with you beautifully reserved"
   }
 ];
 
@@ -62,7 +62,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
+    <div className="min-h-screen bg-background relative overflow-x-hidden">
       {/* Mouse Spotlight Effect */}
       <div 
         className="fixed top-0 left-0 w-[500px] h-[500px] pointer-events-none z-40 transform -translate-x-1/2 -translate-y-1/2 transition-all duration-150 ease-out"
@@ -180,7 +180,7 @@ const Index = () => {
               <h4 className="font-medium text-foreground mb-3">Contact</h4>
               <div className="space-y-1 text-sm text-muted-foreground">
                 <p>fenandferncreations@gmail.com</p>
-                <p>+27 82 123 4567</p>
+                <p>0729670945</p>
                 <p>Cape Town, South Africa</p>
               </div>
             </div>

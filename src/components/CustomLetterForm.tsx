@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Upload, X, MessageCircle, CheckCircle } from "lucide-react";
+import AddressAutocomplete from '@/components/AddressAutocomplete';
+import { calculateDeliveryDistance } from '@/utils/deliveryCalculator';
 
 interface OrderDetails {
   letter: string;
@@ -27,8 +29,26 @@ const CustomLetterForm = ({ onClose }: { onClose: () => void }) => {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderSubmitted, setOrderSubmitted] = useState(false);
+  const [deliveryCost, setDeliveryCost] = useState<number>(0);
+  const [deliveryDistance, setDeliveryDistance] = useState<number>(0);
+  const [isCalculatingDelivery, setIsCalculatingDelivery] = useState(false);
+  const [customerCoordinates, setCustomerCoordinates] = useState<{lat: number, lng: number} | null>(null);
 
   const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+  // Calculate price based on size
+  const calculatePrice = () => {
+    if (!orderDetails.size) return 0;
+    
+    let productPrice = 0;
+    if (orderDetails.size === 'Small') productPrice = 75;
+    if (orderDetails.size === 'Large') productPrice = 125;
+    if (orderDetails.size === 'Stand') productPrice = 225;
+    
+    return productPrice + deliveryCost; // Add delivery cost!
+  };
+
+  const currentPrice = calculatePrice();
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -53,7 +73,33 @@ const CustomLetterForm = ({ onClose }: { onClose: () => void }) => {
     setUploadedImage(null);
   };
 
+  const handleAddressSelect = async (address: string, lat: number, lng: number) => {
+    setOrderDetails({ ...orderDetails, location: address });
+    setCustomerCoordinates({ lat, lng });
+    setIsCalculatingDelivery(true);
+
+    try {
+      const result = await calculateDeliveryDistance(lat, lng);
+      
+      if (result.isTooFar) {
+        alert(`This location is ${result.distance}km away. Please contact us directly for delivery options.`);
+        setDeliveryCost(0);
+        setDeliveryDistance(0);
+      } else {
+        setDeliveryCost(result.cost);
+        setDeliveryDistance(result.distance);
+      }
+    } catch (error) {
+      console.error('Delivery calculation error:', error);
+      setDeliveryCost(0);
+      setDeliveryDistance(0);
+    } finally {
+      setIsCalculatingDelivery(false);
+    }
+  };
+
   const formatWhatsAppMessage = () => {
+    const productPrice = currentPrice - deliveryCost;
     const price = orderDetails.size === 'Small' ? '75' : orderDetails.size === 'Large' ? '125' : '225';
     const sizeText = orderDetails.size === 'Stand' ? 'On Stand (3 letters)' : orderDetails.size;
     
@@ -65,19 +111,22 @@ const CustomLetterForm = ({ onClose }: { onClose: () => void }) => {
 
 🌿 *Letter:* ${orderDetails.letter}
 🌺 *Size:* ${sizeText}
-🎨 *Box Color:* ${orderDetails.boxColor || 'Natural Wood'}
+🎨 *Color:* ${orderDetails.boxColor || 'Natural Wood'}
 📍 *Location:* ${orderDetails.location}
 
 ${orderDetails.customMessage ? `💌 *Message:*\n_"${orderDetails.customMessage}"_\n` : ''}${uploadedImage ? '📷 *Image:* Attached\n' : ''}
 ───────────────────────
 
-💰 *Total Price:* R${price}
+💰 *Pricing Breakdown*
+• Product: R${productPrice}
+${deliveryCost > 0 ? `• Delivery (${deliveryDistance}km): R${deliveryCost}\n` : ''}
+*Total: R${currentPrice}*
 
 ───────────────────────
 
 ✨ _Customer is ready to discuss details!_
 
-🪴 Thank you for choosing Fern & Fern 🪴`;
+🪴 Thank you for choosing fen & fern 🪴`;
 
     return encodeURIComponent(message);
   };
@@ -102,7 +151,7 @@ ${orderDetails.customMessage ? `💌 *Message:*\n_"${orderDetails.customMessage}
   };
 
   if (orderSubmitted) {
-    const finalPrice = orderDetails.size === 'Small' ? '75' : orderDetails.size === 'Large' ? '125' : '225';
+    const finalPrice = currentPrice;
     const sizeText = orderDetails.size === 'Stand' ? 'On Stand (3 letters)' : orderDetails.size;
     
     return (
@@ -153,17 +202,6 @@ ${orderDetails.customMessage ? `💌 *Message:*\n_"${orderDetails.customMessage}
       </div>
     );
   }
-
-  // Calculate price based on size
-  const calculatePrice = () => {
-    if (!orderDetails.size) return 0;
-    if (orderDetails.size === 'Small') return 75;
-    if (orderDetails.size === 'Large') return 125;
-    if (orderDetails.size === 'Stand') return 225;
-    return 0;
-  };
-
-  const currentPrice = calculatePrice();
 
   return (
     <div className="w-full max-w-full md:max-w-3xl lg:max-w-5xl mx-auto px-4 md:px-6">
@@ -240,7 +278,7 @@ ${orderDetails.customMessage ? `💌 *Message:*\n_"${orderDetails.customMessage}
             {/* Box Color Input */}
             <div className="form-field-stagger" style={{ animationDelay: '0.3s' }}>
               <Label className="text-white text-sm md:text-base mb-3 block font-medium">
-                Box Color
+                Color
               </Label>
               <Input
                 placeholder="e.g. Sage Green, Blush Pink, Natural Wood"
@@ -251,18 +289,24 @@ ${orderDetails.customMessage ? `💌 *Message:*\n_"${orderDetails.customMessage}
               <p className="text-white/40 text-xs md:text-sm mt-2">Leave blank for Natural Wood</p>
             </div>
 
-            {/* Location */}
+            {/* Location with Autocomplete */}
             <div className="form-field-stagger" style={{ animationDelay: '0.4s' }}>
               <Label className="text-white text-sm md:text-base mb-3 block font-medium">
                 Delivery Location <span className="text-red-400">*</span>
               </Label>
-              <Input
-                placeholder="Your address or area"
+              <AddressAutocomplete
+                onAddressSelect={handleAddressSelect}
                 value={orderDetails.location}
-                onChange={(e) => setOrderDetails({ ...orderDetails, location: e.target.value })}
-                className="glass-input text-white placeholder:text-white/30 h-14 rounded-2xl text-base"
-                required
+                onChange={(value) => setOrderDetails({ ...orderDetails, location: value })}
               />
+              {isCalculatingDelivery && (
+                <p className="text-white/50 text-xs mt-2">Calculating delivery cost...</p>
+              )}
+              {deliveryDistance > 0 && (
+                <p className="text-white/60 text-xs mt-2">
+                  📍 {deliveryDistance}km away • R{deliveryCost} delivery
+                </p>
+              )}
             </div>
           </div>
 
@@ -320,7 +364,21 @@ ${orderDetails.customMessage ? `💌 *Message:*\n_"${orderDetails.customMessage}
         <div className="p-6 md:p-10 pt-5 md:pt-6 border-t border-white/10">
           {/* Live Price Display */}
           {currentPrice > 0 && (
-            <div className="mb-4 p-4 md:p-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl">
+            <div className="mb-4 p-4 md:p-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl space-y-3">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-white/60">Product</span>
+                <span className="text-white">R{currentPrice - deliveryCost}</span>
+              </div>
+              {deliveryCost > 0 && (
+                <>
+                  <div className="h-px bg-white/10"></div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-white/60">Delivery ({deliveryDistance}km)</span>
+                    <span className="text-white">R{deliveryCost}</span>
+                  </div>
+                </>
+              )}
+              <div className="h-px bg-white/10"></div>
               <div className="flex justify-between items-center">
                 <span className="text-white/70 text-sm md:text-base">Total Price</span>
                 <span className="text-white font-bold text-2xl md:text-3xl">

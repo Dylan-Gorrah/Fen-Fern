@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Upload, X, MessageCircle, CheckCircle } from "lucide-react";
+import AddressAutocomplete from '@/components/AddressAutocomplete';
+import { calculateDeliveryDistance } from '@/utils/deliveryCalculator';
 
 interface OrderDetails {
   size: string;
@@ -27,6 +29,10 @@ const CustomBoxForm = ({ onClose }: { onClose: () => void }) => {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderSubmitted, setOrderSubmitted] = useState(false);
+  const [deliveryCost, setDeliveryCost] = useState<number>(0);
+  const [deliveryDistance, setDeliveryDistance] = useState<number>(0);
+  const [isCalculatingDelivery, setIsCalculatingDelivery] = useState(false);
+  const [customerCoordinates, setCustomerCoordinates] = useState<{lat: number, lng: number} | null>(null);
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -51,6 +57,31 @@ const CustomBoxForm = ({ onClose }: { onClose: () => void }) => {
     setUploadedImage(null);
   };
 
+  const handleAddressSelect = async (address: string, lat: number, lng: number) => {
+    setOrderDetails({ ...orderDetails, location: address });
+    setCustomerCoordinates({ lat, lng });
+    setIsCalculatingDelivery(true);
+
+    try {
+      const result = await calculateDeliveryDistance(lat, lng);
+      
+      if (result.isTooFar) {
+        alert(`This location is ${result.distance}km away. Please contact us directly for delivery options.`);
+        setDeliveryCost(0);
+        setDeliveryDistance(0);
+      } else {
+        setDeliveryCost(result.cost);
+        setDeliveryDistance(result.distance);
+      }
+    } catch (error) {
+      console.error('Delivery calculation error:', error);
+      setDeliveryCost(0);
+      setDeliveryDistance(0);
+    } finally {
+      setIsCalculatingDelivery(false);
+    }
+  };
+
   // Calculate price based on size and paint option
   const calculatePrice = () => {
     if (!orderDetails.size || !orderDetails.withPaint) return 0;
@@ -63,14 +94,15 @@ const CustomBoxForm = ({ onClose }: { onClose: () => void }) => {
 
     const size = orderDetails.size;
     const withPaint = orderDetails.withPaint === 'Yes';
-
-    return withPaint ? prices[size].withPaint : prices[size].withoutPaint;
+    const productPrice = withPaint ? prices[size].withPaint : prices[size].withoutPaint;
+    
+    return productPrice + deliveryCost; // Add delivery cost!
   };
 
   const currentPrice = calculatePrice();
 
   const formatWhatsAppMessage = () => {
-    const price = calculatePrice();
+    const productPrice = currentPrice - deliveryCost;
     const paintText = orderDetails.withPaint === 'Yes' ? 'With Paint' : 'Without Paint';
     
     const message = `🎁 *New Custom Box Order* 🎁
@@ -86,7 +118,10 @@ ${orderDetails.withPaint === 'Yes' && orderDetails.boxColor ? `🌈 *Box Color:*
 ${orderDetails.customMessage ? `💌 *Message:*\n_"${orderDetails.customMessage}"_\n` : ''}${uploadedImage ? '📷 *Image:* Attached\n' : ''}
 ───────────────────────
 
-💰 *Total Price:* R${price}
+💰 *Pricing Breakdown*
+• Product: R${productPrice}
+${deliveryCost > 0 ? `• Delivery (${deliveryDistance}km): R${deliveryCost}\n` : ''}
+*Total: R${currentPrice}*
 
 ───────────────────────
 
@@ -117,7 +152,7 @@ ${orderDetails.customMessage ? `💌 *Message:*\n_"${orderDetails.customMessage}
   };
 
   if (orderSubmitted) {
-    const finalPrice = calculatePrice();
+    const finalPrice = currentPrice;
     const paintText = orderDetails.withPaint === 'Yes' ? 'With Paint' : 'Without Paint';
     
     return (
@@ -258,18 +293,24 @@ ${orderDetails.customMessage ? `💌 *Message:*\n_"${orderDetails.customMessage}
                 <p className="text-white/40 text-xs md:text-sm mt-2">Describe your desired color</p>
               </div>
 
-              {/* Location */}
+              {/* Location with Autocomplete */}
               <div className="form-field-stagger" style={{ animationDelay: '0.4s' }}>
                 <Label className="text-white text-sm md:text-base mb-3 block font-medium">
                   Delivery Location <span className="text-red-400">*</span>
                 </Label>
-                <Input
-                  placeholder="Your address or area"
+                <AddressAutocomplete
+                  onAddressSelect={handleAddressSelect}
                   value={orderDetails.location}
-                  onChange={(e) => setOrderDetails({ ...orderDetails, location: e.target.value })}
-                  className="glass-input text-white placeholder:text-white/30 h-14 rounded-2xl text-base"
-                  required
+                  onChange={(value) => setOrderDetails({ ...orderDetails, location: value })}
                 />
+                {isCalculatingDelivery && (
+                  <p className="text-white/50 text-xs mt-2">Calculating delivery cost...</p>
+                )}
+                {deliveryDistance > 0 && (
+                  <p className="text-white/60 text-xs mt-2">
+                    📍 {deliveryDistance}km away • R{deliveryCost} delivery
+                  </p>
+                )}
               </div>
             </div>
           ) : (
@@ -278,13 +319,19 @@ ${orderDetails.customMessage ? `💌 *Message:*\n_"${orderDetails.customMessage}
               <Label className="text-white text-sm md:text-base mb-3 block font-medium">
                 Delivery Location <span className="text-red-400">*</span>
               </Label>
-              <Input
-                placeholder="Your address or area"
+              <AddressAutocomplete
+                onAddressSelect={handleAddressSelect}
                 value={orderDetails.location}
-                onChange={(e) => setOrderDetails({ ...orderDetails, location: e.target.value })}
-                className="glass-input text-white placeholder:text-white/30 h-14 rounded-2xl text-base"
-                required
+                onChange={(value) => setOrderDetails({ ...orderDetails, location: value })}
               />
+              {isCalculatingDelivery && (
+                <p className="text-white/50 text-xs mt-2">Calculating delivery cost...</p>
+              )}
+              {deliveryDistance > 0 && (
+                <p className="text-white/60 text-xs mt-2">
+                  📍 {deliveryDistance}km away • R{deliveryCost} delivery
+                </p>
+              )}
             </div>
           )}
 
@@ -342,7 +389,21 @@ ${orderDetails.customMessage ? `💌 *Message:*\n_"${orderDetails.customMessage}
         <div className="p-6 md:p-10 pt-5 md:pt-6 border-t border-white/10">
           {/* Live Price Display */}
           {currentPrice > 0 && (
-            <div className="mb-4 p-4 md:p-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl">
+            <div className="mb-4 p-4 md:p-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl space-y-3">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-white/60">Product</span>
+                <span className="text-white">R{currentPrice - deliveryCost}</span>
+              </div>
+              {deliveryCost > 0 && (
+                <>
+                  <div className="h-px bg-white/10"></div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-white/60">Delivery ({deliveryDistance}km)</span>
+                    <span className="text-white">R{deliveryCost}</span>
+                  </div>
+                </>
+              )}
+              <div className="h-px bg-white/10"></div>
               <div className="flex justify-between items-center">
                 <span className="text-white/70 text-sm md:text-base">Total Price</span>
                 <span className="text-white font-bold text-2xl md:text-3xl">

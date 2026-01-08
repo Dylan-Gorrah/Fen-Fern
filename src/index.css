@@ -89,12 +89,41 @@
     @apply border-border;
   }
 
+  html {
+    overflow-x: hidden;
+    background: hsl(var(--background));
+    min-height: 100%;
+  }
+
   body {
     @apply bg-background text-foreground;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+    background: hsl(var(--background));
   }
   
   body.modal-open {
     overflow: hidden;
+  }
+  
+  /* Ensure no white overflow */
+  #root {
+    min-height: 100vh;
+    width: 100%;
+    background: hsl(var(--background));
+    overflow-x: hidden;
+  }
+  
+  /* Global fix for any element causing horizontal overflow */
+  * {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  img, video {
+    max-width: 100%;
+    height: auto;
   }
 }
 
@@ -138,6 +167,26 @@
   /* Ensure dropdowns appear above modal content */
   .custom-letter-modal-overlay [data-radix-popper-content-wrapper] {
     z-index: 10000 !important;
+  }
+  
+  /* Google Maps Autocomplete Dropdown - Must appear above modal */
+  .pac-container {
+    z-index: 99999 !important;
+  }
+  
+  /* Additional targeting for Google Maps */
+  .pac-container.pac-logo,
+  .pac-container:after,
+  div.pac-container {
+    z-index: 99999 !important;
+  }
+  
+  /* Force Google Maps to appear above any modal */
+  body.modal-open .pac-container,
+  body.modal-open .pac-container.pac-logo,
+  body.modal-open div.pac-container {
+    z-index: 99999 !important;
+    position: absolute !important;
   }
   
   @keyframes overlayFadeIn {

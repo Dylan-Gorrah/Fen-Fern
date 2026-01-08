@@ -28,31 +28,45 @@ The business is based in Cape Town, South Africa, and uses WhatsApp as their pri
 - **`vite.config.ts`** - Vite build tool configuration for fast development
 - **`tailwind.config.ts`** - Tailwind CSS configuration with custom floral theme
 - **`tsconfig.json`** - TypeScript compiler settings for type safety
+- **`tsconfig.app.json`** - App-specific TypeScript configuration
+- **`tsconfig.node.json`** - Node.js TypeScript configuration
 - **`eslint.config.js`** - Code linting rules for consistent code quality
 - **`components.json`** - shadcn/ui component library configuration
+- **`postcss.config.js`** - PostCSS configuration for Tailwind CSS
+- **`.env.local`** - Environment variables (Google Maps API key)
+- **`.gitignore`** - Git ignore rules for sensitive files
+- **`bun.lockb`** - Dependency lock file (Bun package manager)
 
 ### **Source Code (`/src`)**
 - **`src/main.tsx`** - Application entry point, renders the React app
 - **`src/App.tsx`** - Main app component with routing setup and providers
 - **`src/index.css`** - Global styles including custom CSS classes and animations
 - **`src/App.css`** - Additional app-specific styles and floral theme definitions
+- **`src/vite-env.d.ts`** - Vite environment type definitions
 
 ### **Pages (`/src/pages`)**
 - **`src/pages/Index.tsx`** - Main landing page with hero section, products grid, and modal logic
 - **`src/pages/NotFound.tsx`** - 404 error page for invalid routes
 
 ### **Components (`/src/components`)**
-- **`src/components/CustomLetterForm.tsx`** - Comprehensive form for custom letter orders with validation
+- **`src/components/CustomLetterForm.tsx`** - Comprehensive form for custom letter orders with address autocomplete and delivery calculation
+- **`src/components/CustomBoxForm.tsx`** - Comprehensive form for custom box orders with address autocomplete and delivery calculation
+- **`src/components/AddressAutocomplete.tsx`** - Google Maps address autocomplete component
 - **`src/components/ui/`** - Complete shadcn/ui component library (49 components):
   - Button, Card, Input, Select, Textarea, Badge, Label, etc.
   - Pre-built accessible components with consistent styling
+
+### **Utilities (`/src/utils`)**
+- **`src/utils/deliveryCalculator.ts`** - Advanced delivery calculation with zones, courier options, and pricing logic
+
+### **Hooks (`/src/hooks`)**
+- **`src/hooks/use-mobile.tsx`** - Custom hook for mobile device detection
+- **`src/hooks/use-toast.ts`** - Toast notification system hook
 
 ### **Assets (`/src/assets`)**
 - **`hero-floral.jpg`** - Main hero background image
 - **`product-collage-box.jpg`** - Memory Box product photo
 - **`product-letter.jpg`** - Custom Letter product photo
-- **`product-frame.jpg`** - Additional product imagery
-- **`product-pressed.jpg`** - Pressed flower detail images
 
 ### **Public Files (`/public`)**
 - **`favicon.ico`** - Website favicon for browser tabs
@@ -61,6 +75,13 @@ The business is based in Cape Town, South Africa, and uses WhatsApp as their pri
 
 ### **Documentation**
 - **`README.md`** - Project overview, setup instructions, and tech stack badges
+- **`locationCalculation.md`** - Detailed guide for location-based delivery feature implementation
+- **`implementation-summary.md`** - Summary of location feature implementation
+- **`user-flow.md`** - User experience flow documentation
+- **`context.md`** - This file - project context and structure documentation
+
+### **Media Assets**
+- **`GIFF's/`** - Animated GIFs for UI demonstrations
 - **`user-flow.md`** - Detailed customer journey analysis
 - **`context.md`** - This comprehensive project analysis document
 
