@@ -18,7 +18,7 @@ const products = [
     price: 150,
     priceRange: "from R150",
     image: productCollageBox,
-    description: "Handcrafted wooden boxes filled with preserved flowers, photos, and cherished mementos"
+    description: "Wooden boxes preserved with photos and memories"
   },
   {
     id: 2,
@@ -26,7 +26,7 @@ const products = [
     price: 75,
     priceRange: "from R75",
     image: productLetter,
-    description: "Personalized letter with you beautifully reserved"
+    description: "Personalized letter preserved with beautiful memories"
   }
 ];
 
@@ -137,8 +137,8 @@ const Index = () => {
                     alt={product.name}
                     className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-700"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="absolute bottom-6 left-6 right-6 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 opacity-0 group-hover:opacity-100">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 md:opacity-0 group-hover:opacity-100 md:group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute bottom-6 left-6 right-6 transform translate-y-4 opacity-100 md:opacity-0 md:translate-y-4 md:group-hover:translate-y-0 md:opacity-0 md:group-hover:opacity-100 transition-all duration-500">
                     <h3 className="text-white text-xl font-medium mb-2 transition-all duration-300">
                       {product.name}
                     </h3>
@@ -180,7 +180,7 @@ const Index = () => {
               <h4 className="font-medium text-foreground mb-3">Contact</h4>
               <div className="space-y-1 text-sm text-muted-foreground">
                 <p>fenandferncreations@gmail.com</p>
-                <p>0729670945</p>
+                <p>072 967 0945</p>
                 <p>Cape Town, South Africa</p>
               </div>
             </div>
