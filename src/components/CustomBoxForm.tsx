@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload, X, MessageCircle, CheckCircle } from "lucide-react";
+import { MessageCircle, CheckCircle, Camera, X } from "lucide-react";
 import AddressAutocomplete from '@/components/AddressAutocomplete';
 import { calculateDeliveryDistance } from '@/utils/deliveryCalculator';
 
@@ -15,7 +15,6 @@ interface OrderDetails {
   boxColor: string;
   location: string;
   customMessage: string;
-  imageUrl?: string;
 }
 
 const CustomBoxForm = ({ onClose }: { onClose: () => void }) => {
@@ -26,7 +25,8 @@ const CustomBoxForm = ({ onClose }: { onClose: () => void }) => {
     location: '',
     customMessage: ''
   });
-  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderSubmitted, setOrderSubmitted] = useState(false);
   const [deliveryCost, setDeliveryCost] = useState<number>(0);
@@ -42,20 +42,6 @@ const CustomBoxForm = ({ onClose }: { onClose: () => void }) => {
     };
   }, []);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setUploadedImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const removeImage = () => {
-    setUploadedImage(null);
-  };
 
   const handleAddressSelect = async (address: string, lat: number, lng: number) => {
     setOrderDetails({ ...orderDetails, location: address });
@@ -65,13 +51,15 @@ const CustomBoxForm = ({ onClose }: { onClose: () => void }) => {
     try {
       const result = await calculateDeliveryDistance(lat, lng);
       
-      if (result.isTooFar) {
+      const selectedOption = result.options[0];
+      
+      if (selectedOption) {
+        setDeliveryCost(selectedOption.cost);
+        setDeliveryDistance(result.distance);
+      } else {
         alert(`This location is ${result.distance}km away. Please contact us directly for delivery options.`);
         setDeliveryCost(0);
         setDeliveryDistance(0);
-      } else {
-        setDeliveryCost(result.cost);
-        setDeliveryDistance(result.distance);
       }
     } catch (error) {
       console.error('Delivery calculation error:', error);
@@ -96,7 +84,7 @@ const CustomBoxForm = ({ onClose }: { onClose: () => void }) => {
     const withPaint = orderDetails.withPaint === 'Yes';
     const productPrice = withPaint ? prices[size].withPaint : prices[size].withoutPaint;
     
-    return productPrice + deliveryCost; // Add delivery cost!
+    return productPrice + deliveryCost;
   };
 
   const currentPrice = calculatePrice();
@@ -114,8 +102,7 @@ const CustomBoxForm = ({ onClose }: { onClose: () => void }) => {
 📦 *Size:* ${orderDetails.size}
 🎨 *Paint:* ${paintText}
 ${orderDetails.withPaint === 'Yes' && orderDetails.boxColor ? `🌈 *Box Color:* ${orderDetails.boxColor}\n` : ''}📍 *Location:* ${orderDetails.location}
-
-${orderDetails.customMessage ? `💌 *Message:*\n_"${orderDetails.customMessage}"_\n` : ''}${uploadedImage ? '📷 *Image:* Attached\n' : ''}
+${orderDetails.customMessage ? `\n💌 *Message:*\n_"${orderDetails.customMessage}"_\n` : ''}
 ───────────────────────
 
 💰 *Pricing Breakdown*
@@ -124,6 +111,8 @@ ${deliveryCost > 0 ? `• Delivery (${deliveryDistance}km): R${deliveryCost}\n` 
 *Total: R${currentPrice}*
 
 ───────────────────────
+
+📸 _Feel free to send any reference images in the next message!_
 
 ✨ _Customer is ready to discuss details!_
 
@@ -349,38 +338,20 @@ ${deliveryCost > 0 ? `• Delivery (${deliveryDistance}km): R${deliveryCost}\n` 
             />
           </div>
 
-          {/* Image Upload */}
+          {/* Image Note */}
           <div className="form-field-stagger" style={{ animationDelay: '0.6s' }}>
-            <Label className="text-white text-sm md:text-base mb-3 block font-medium">
-              Upload Image <span className="text-white/50 text-sm">(optional)</span>
-            </Label>
-            <div className="border border-dashed border-white/20 rounded-2xl p-8 text-center glass-input hover:border-white/30 transition-all">
-              {uploadedImage ? (
-                <div className="relative">
-                  <img 
-                    src={uploadedImage} 
-                    alt="Uploaded" 
-                    className="max-h-48 mx-auto rounded-xl shadow-lg"
-                  />
-                  <button
-                    onClick={removeImage}
-                    className="absolute -top-3 -right-3 bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center transition-colors shadow-lg"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
+              <div className="flex items-start space-x-4">
+                <div className="bg-white/10 rounded-full p-3 flex-shrink-0">
+                  <Camera className="w-6 h-6 text-white" />
                 </div>
-              ) : (
-                <label className="cursor-pointer block">
-                  <Upload className="w-10 h-10 mx-auto mb-3 text-white/30" />
-                  <span className="text-white/50 text-sm md:text-base">Click to upload</span>
-                  <input
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                  />
-                </label>
-              )}
+                <div>
+                  <h3 className="text-white font-medium text-base mb-2">Send your pictures via WhatsApp</h3>
+                  <p className="text-white/60 text-sm leading-relaxed">
+                    Send images directly via WhatsApp after placing your order. We'll get them right away.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
