@@ -80,7 +80,6 @@ const CustomLetterForm = ({ onClose }: { onClose: () => void }) => {
     
     const prices: { [key: string]: { single: number; bundle: number } } = {
       'Small': { single: 75, bundle: 200 },
-      'Medium': { single: 100, bundle: 250 },
       'Large': { single: 125, bundle: 300 }
     };
 
@@ -322,9 +321,6 @@ _"${orderDetails.customMessage}"_`;
                     <SelectContent className="bg-gray-900/95 backdrop-blur-3xl border border-white/20 rounded-2xl z-[10001]">
                       <SelectItem value="Small" className="text-white hover:bg-white/10 focus:bg-white/10 cursor-pointer text-base py-3 rounded-xl">
                         Small - {orderDetails.letter === '3 Letter Bundle' ? 'R200' : 'R75'}
-                      </SelectItem>
-                      <SelectItem value="Medium" className="text-white hover:bg-white/10 focus:bg-white/10 cursor-pointer text-base py-3 rounded-xl">
-                        Medium - {orderDetails.letter === '3 Letter Bundle' ? 'R250' : 'R100'}
                       </SelectItem>
                       <SelectItem value="Large" className="text-white hover:bg-white/10 focus:bg-white/10 cursor-pointer text-base py-3 rounded-xl">
                         Large - {orderDetails.letter === '3 Letter Bundle' ? 'R300' : 'R125'}
